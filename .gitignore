@@ -1,0 +1,5 @@
+# VS code stuff
+/.vscode
+
+# Go modules
+/vendor
