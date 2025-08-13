@@ -73,7 +73,7 @@ func layout(g *gocui.Gui) error {
 	}
 
 	// Left: Favorites
-	if v, err := g.SetView("favorites", 0, searchH, leftW-1, maxY-2); err != nil {
+	if v, err := g.SetView("favorites", 0, searchH, leftW-1, maxY-3); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
@@ -111,7 +111,7 @@ func layout(g *gocui.Gui) error {
 	}
 
 	// Center: Hour by Hour
-	if v, err := g.SetView("Hour by Hour", leftW, centerH, leftW+centerW-1, maxY-2); err != nil {
+	if v, err := g.SetView("Hour by Hour", leftW, centerH, leftW+centerW-1, maxY-3); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
@@ -119,7 +119,7 @@ func layout(g *gocui.Gui) error {
 	}
 
 	// Right: 10 Day Forecast
-	if v, err := g.SetView("10day", leftW+centerW, 0, maxX-1, maxY-2); err != nil {
+	if v, err := g.SetView("10day", leftW+centerW, 0, maxX-1, maxY-3); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
@@ -127,14 +127,14 @@ func layout(g *gocui.Gui) error {
 	}
 
 	// Help view at the bottom
-	if v, err := g.SetView("help", 0, maxY-2, maxX-1, maxY-1); err != nil {
+	if v, err := g.SetView("help", 0, maxY-3, maxX-1, maxY-1); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
 		v.Frame = false
-		v.BgColor = gocui.ColorWhite
-		v.FgColor = gocui.ColorBlack
-		fmt.Fprint(v, " Ctrl+C: Quit | Tab: Next | Shift+Tab: Previous ")
+		v.Wrap = true
+		//	fmt.Fprint(v, " Ctrl+C: Quit | Tab: Next | Shift+Tab: Previous ")
+		v.Write([]byte("Search: s | Refresh: t | Units: u | Quit: q"))
 	}
 
 	return nil
