@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"example.com/mod/classes"
+	"example.com/mod/fetchers"
 	"example.com/mod/utils"
 	"github.com/jroimartin/gocui"
 )
@@ -13,18 +14,7 @@ import (
 // Store last known terminal size for resize detection
 var lastX, lastY int
 
-var favoritesMock = []classes.Weather{
-	{City: "New York", Temp: "22°C", Weather: "Sunny"},
-	{City: "Los Angeles", Temp: "28°C", Weather: "Overcast"},
-	{City: "Chicago", Temp: "16°C", Weather: "Raining"},
-	{City: "Denver", Temp: "10°C", Weather: "Snow"},
-	{City: "Miami", Temp: "30°C", Weather: "Sunny"},
-	{City: "Seattle", Temp: "18°C", Weather: "Overcast"},
-	{City: "Boston", Temp: "20°C", Weather: "Raining"},
-	{City: "San Francisco", Temp: "19°C", Weather: "Sunny"},
-	{City: "Austin", Temp: "25°C", Weather: "Sunny"},
-	{City: "Phoenix", Temp: "35°C", Weather: "Sunny"},
-}
+var favoritesMock = []classes.Weather{}
 
 func main() {
 	g, err := gocui.NewGui(gocui.OutputNormal)
@@ -54,11 +44,7 @@ func main() {
 }
 
 func layout(g *gocui.Gui) error {
-	selectedCity := classes.Weather{
-		City:    "New York",
-		Temp:    "22°C",
-		Weather: "Sunny",
-	}
+	selectedCity := fetchers.GetWeatherFromLatLig(48.1486, 17.1077) // Default city
 
 	maxX, maxY := g.Size()
 
@@ -105,8 +91,7 @@ func layout(g *gocui.Gui) error {
 					// Simulate updating current weather for clicked city
 					// updateCurrentWeather(g, city, "N/A", "N/A", leftW+centerW-1)
 
-					selectedCity = favoritesMock[cy]
-					updateCurrentWeather(g, selectedCity.City, selectedCity.Temp, selectedCity.Weather, centerW-1)
+					updateCurrentWeather(g, selectedCity.Name, fmt.Sprintf("%.1f", selectedCity.Main.Temp), selectedCity.Weather[len(selectedCity.Weather)-1].Main, centerW-1)
 				}
 			}
 			return nil
@@ -122,7 +107,7 @@ func layout(g *gocui.Gui) error {
 			return err
 		}
 		v.Title = "Current"
-		updateCurrentWeather(g, selectedCity.City, selectedCity.Temp, selectedCity.Weather, centerW-1)
+		updateCurrentWeather(g, selectedCity.Name, fmt.Sprintf("%.1f", selectedCity.Main.Temp), selectedCity.Weather[len(selectedCity.Weather)-1].Main, centerW-1)
 	}
 
 	// Center: Hour by Hour
@@ -168,7 +153,16 @@ func listFavoritesMock(availableWidth int) []byte {
 			// 	utils.GetWeatherIcon(fav.Weather),
 			// 	fav.City,
 			// 	fav.Temp))
-			utils.AlignLeftRight(fav.City, utils.GetWeatherIcon(fav.Weather)+" "+fav.Weather, availableWidth),
+			utils.AlignLeftRight(
+				fav.Name,
+				func() string {
+					if len(fav.Weather) > 0 {
+						return utils.GetWeatherIcon(fav.Name) + " " + fav.Weather[0].Main
+					}
+					return ""
+				}(),
+				availableWidth,
+			),
 		)
 
 	}
