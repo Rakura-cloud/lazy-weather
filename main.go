@@ -1,14 +1,13 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"strings"
-
 	"example.com/mod/classes"
 	"example.com/mod/fetchers"
 	"example.com/mod/utils"
+	"fmt"
 	"github.com/jroimartin/gocui"
+	"log"
+	"strings"
 )
 
 // Store last known terminal size for resize detection
@@ -51,7 +50,7 @@ func layout(g *gocui.Gui) error {
 	// Detect resize
 	if w, h := g.Size(); w != lastX || h != lastY {
 		lastX, lastY = w, h
-		onResize(g, w, h)
+		onResize(g, w, h, selectedCity)
 	}
 
 	// Column widths
@@ -183,11 +182,14 @@ func updateCurrentWeather(g *gocui.Gui, city string, temp string, weather string
 	return nil
 }
 
-func onResize(g *gocui.Gui, w, h int) {
+func onResize(g *gocui.Gui, w, h int, weather *classes.Weather) {
 	centerW := w * 3 / 5
 	leftW := w / 5
 
 	// Update the "current" view with new width
-	updateCurrentWeather(g, "New York", "22°C", "Sunny", centerW-1)
+	updateCurrentWeather(g, weather.Name, "", "", centerW-1)
+
+	updateCurrentWeather(g, weather.Name, fmt.Sprintf("%.1f", weather.Main.Temp), weather.Weather[len(weather.Weather)-1].Main, centerW-1)
+
 	listFavoritesMock(leftW - 2)
 }
