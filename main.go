@@ -65,7 +65,7 @@ func layout(g *gocui.Gui) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		v.Title = "Search"
+		v.Title = "[1] Search"
 		v.Wrap = true
 		v.Highlight = true
 		v.Write([]byte("Enter location to search..."))
@@ -76,7 +76,7 @@ func layout(g *gocui.Gui) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		v.Title = "Favorites"
+		v.Title = "[2] Favorites"
 		v.Autoscroll = true
 		v.Editor = gocui.DefaultEditor
 		v.Editable = true
@@ -87,9 +87,6 @@ func layout(g *gocui.Gui) error {
 				selected := lines[cy]
 				fields := strings.Fields(selected)
 				if len(fields) >= 2 {
-					// Simulate updating current weather for clicked city
-					// updateCurrentWeather(g, city, "N/A", "N/A", leftW+centerW-1)
-
 					updateCurrentWeather(g, selectedCity.Name, fmt.Sprintf("%.1f", selectedCity.Main.Temp), selectedCity.Weather[len(selectedCity.Weather)-1].Main, centerW-1)
 				}
 			}
@@ -114,7 +111,7 @@ func layout(g *gocui.Gui) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		v.Title = "Hour by Hour"
+		v.Title = "[3] Hour by Hour"
 	}
 
 	// Right: 10 Day Forecast
@@ -122,7 +119,7 @@ func layout(g *gocui.Gui) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		v.Title = "10 Day Forecast"
+		v.Title = "[4] 10 Day Forecast"
 	}
 
 	// Help view at the bottom
@@ -132,7 +129,6 @@ func layout(g *gocui.Gui) error {
 		}
 		v.Frame = false
 		v.Wrap = true
-		//	fmt.Fprint(v, " Ctrl+C: Quit | Tab: Next | Shift+Tab: Previous ")
 		v.Write([]byte("Search: s | Refresh: t | Units: u | Quit: q"))
 	}
 
@@ -148,10 +144,6 @@ func listFavoritesMock(availableWidth int) []byte {
 	var lines []string
 	for _, fav := range favoritesMock {
 		lines = append(lines,
-			// fmt.Sprintf("%s\033[1m%-15s %-6s\033 ",
-			// 	utils.GetWeatherIcon(fav.Weather),
-			// 	fav.City,
-			// 	fav.Temp))
 			utils.AlignLeftRight(
 				fav.Name,
 				func() string {
