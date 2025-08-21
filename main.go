@@ -15,6 +15,8 @@ var lastX, lastY int
 
 var favoritesMock = []classes.Weather{}
 
+var selectedWindow = 1
+
 func main() {
 	g, err := gocui.NewGui(gocui.OutputNormal)
 	if err != nil {
@@ -33,8 +35,22 @@ func main() {
 	g.SetManagerFunc(layout)
 
 	// Quit keybinding
-	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
+	if err := g.SetKeybinding("", gocui.KeyCtrlQ, gocui.ModNone, quit); err != nil {
 		log.Panicln(err)
+
+	}
+
+	if err := g.SetKeybinding("Window Switcher", gocui.KeyTab, gocui.ModNone, quit); err != nil {
+		switch selectedWindow {
+		case 1:
+			selectedWindow = 2
+		case 2:
+			selectedWindow = 3
+		case 3:
+			selectedWindow = 4
+		default:
+			selectedWindow = 1
+		}
 	}
 
 	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
@@ -65,9 +81,15 @@ func layout(g *gocui.Gui) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
+		v.Editable = selectedWindow == 1
 		v.Title = "[1] Search"
 		v.Wrap = true
-		v.Highlight = true
+		if selectedWindow == 1 {
+			v.BgColor = gocui.ColorRed
+		} else {
+			v.BgColor = gocui.ColorBlue
+		}
+
 		v.Write([]byte("Enter location to search..."))
 	}
 
@@ -79,7 +101,12 @@ func layout(g *gocui.Gui) error {
 		v.Title = "[2] Favorites"
 		v.Autoscroll = true
 		v.Editor = gocui.DefaultEditor
-		v.Editable = true
+		v.Editable = selectedWindow == 2
+		if selectedWindow == 2 {
+			v.BgColor = gocui.ColorRed
+		} else {
+			v.BgColor = gocui.ColorBlue
+		}
 		g.SetKeybinding("favorites", gocui.MouseLeft, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
 			_, cy := v.Cursor()
 			lines := strings.Split(string(v.Buffer()), "\n")
@@ -112,6 +139,7 @@ func layout(g *gocui.Gui) error {
 			return err
 		}
 		v.Title = "[3] Hour by Hour"
+		v.Editable = selectedWindow == 3
 	}
 
 	// Right: 10 Day Forecast
@@ -120,6 +148,7 @@ func layout(g *gocui.Gui) error {
 			return err
 		}
 		v.Title = "[4] 10 Day Forecast"
+		v.Editable = selectedWindow == 4
 	}
 
 	// Help view at the bottom
@@ -129,7 +158,7 @@ func layout(g *gocui.Gui) error {
 		}
 		v.Frame = false
 		v.Wrap = true
-		v.Write([]byte("Search: s | Refresh: t | Units: u | Quit: q"))
+		v.Write([]byte("Search: s | Refresh: t | Units: u | Quit: q | SelectenWindowIndex:  " + fmt.Sprintln(selectedWindow)))
 	}
 
 	return nil

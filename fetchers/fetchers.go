@@ -4,25 +4,17 @@ package fetchers
 
 import (
 	"example.com/mod/classes"
-	"github.com/joho/godotenv"
+	"example.com/mod/envi"
 	"io"
 	"log"
 	"net/http"
-	"os"
 )
 
 const weatherUrl string = "https://api.openweathermap.org/data/2.5/weather?lat=48.1486&lon=17.1077&appid="
 
 func GetWeatherFromLatLig(lat, lon float64) *classes.Weather {
 
-	err := godotenv.Load()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	openWeatherApi := os.Getenv("OPENWEATHERAPI")
-
+	openWeatherApi := envi.GetEnvVariable("OPENWEATHERAPI")
 	resp, err := http.Get(weatherUrl + openWeatherApi)
 
 	if err != nil {
